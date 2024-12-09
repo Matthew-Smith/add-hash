@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Add-Hash Options</title>
+  <style>
+    .status {
+      color: green;
+      margin-top: 10px;
+      display: none;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <form>
+    <div class="form-group">
+      <label>Hash Key:</label>
+      <input type="text" id="hashKey" />
+    </div>
+    <div class="form-group">
+      <label>Hash Value Template:</label>
+      <input type="text" id="hashValue" />
+    </div>
+    <button type="submit">Save</button>
+  </form>
+  <div id="status" class="status">Settings saved successfully!</div>
+  <script src="options.js"></script>
+</body>
+</html> 
