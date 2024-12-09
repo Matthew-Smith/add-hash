@@ -1,6 +1,10 @@
 # add-hash
 Firefox extension to add a key/value hash param to the current tab.
 
+Install this plugin at:
+
+https://addons.mozilla.org/en-US/firefox/addon/add-hash/
+
 ## Usage
 
 1. Install the extension
