@@ -1,4 +1,4 @@
-browser.browserAction.onClicked.addListener(async (tab) => {
+browser.action.onClicked.addListener(async (tab) => {
   try {
     // Get the stored key and value
     const result = await browser.storage.sync.get(["hashKey", "hashValue"]);
@@ -9,43 +9,44 @@ browser.browserAction.onClicked.addListener(async (tab) => {
       return;
     }
 
-    browser.tabs.executeScript({
-      code: `
-        (function() {
-          function updateUrlWithoutReload() {
-            if (!location.hash) {
-              // No hash exists, add it
-              const newUrl = location.href + '#' + '${hashKey}' + '=' + '${hashValue}';
-              window.history.replaceState(null, '', newUrl);
-            } else {
-              // Hash exists, update or add our parameter
-              const existingHash = location.hash.substring(1);
-              const params = {};
-              
-              // Parse existing hash parameters
-              existingHash.split('&').forEach(pair => {
-                const [key, value] = pair.split('=');
-                if (key && key !== '${hashKey}') {
-                  params[key] = value;
-                }
-              });
-              
-              // Add our parameter
-              params['${hashKey}'] = '${hashValue}';
-              
-              // Reconstruct the URL
-              const newHash = Object.entries(params)
-                .map(([key, value]) => key + '=' + value)
-                .join('&');
-              const newUrl = location.pathname + location.search + '#' + newHash;
-              
-              window.history.replaceState(null, '', newUrl);
-            }
+    // Use the new scripting API instead of tabs.executeScript
+    await browser.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: (key, value) => {
+        function updateUrlWithoutReload() {
+          if (!location.hash) {
+            // No hash exists, add it
+            const newUrl = location.href + '#' + key + '=' + value;
+            window.history.replaceState(null, '', newUrl);
+          } else {
+            // Hash exists, update or add our parameter
+            const existingHash = location.hash.substring(1);
+            const params = {};
+            
+            // Parse existing hash parameters
+            existingHash.split('&').forEach(pair => {
+              const [k, v] = pair.split('=');
+              if (k && k !== key) {
+                params[k] = v;
+              }
+            });
+            
+            // Add our parameter
+            params[key] = value;
+            
+            // Reconstruct the URL
+            const newHash = Object.entries(params)
+              .map(([k, v]) => k + '=' + v)
+              .join('&');
+            const newUrl = location.pathname + location.search + '#' + newHash;
+            
+            window.history.replaceState(null, '', newUrl);
           }
+        }
 
-          updateUrlWithoutReload();
-        })();
-      `
+        updateUrlWithoutReload();
+      },
+      args: [hashKey, hashValue]
     });
   } catch (error) {
     console.error('Error adding hash:', error);
